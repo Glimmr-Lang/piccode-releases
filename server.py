@@ -54,6 +54,18 @@ class CustomHandler(SimpleHTTPRequestHandler):
         response.append(f"<h2>Index of {html.escape(displaypath)}</h2></div><hr><pre>")
 
         response.append(f"<table>")
+
+        if self.path.strip("/") != "":
+            parent_path = os.path.dirname(self.path.rstrip("/"))
+            if not parent_path.endswith("/"):
+                parent_path += "/"
+            if not parent_path.startswith("/"):
+                parent_path = "/" + parent_path
+            response.append(
+                f'<tr><td><a href="{html.escape(parent_path)}" style="padding-right: 25rem;">{"..."}</a></td></tr>'
+            )
+
+
         for name in files:
             fullname = os.path.join(path, name)
             display_name = name + "/" if os.path.isdir(fullname) else name

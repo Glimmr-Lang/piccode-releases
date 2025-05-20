@@ -4,11 +4,39 @@ import time
 import sys
 import urllib.parse
 import html
+from urllib.parse import unquote
+
+PUBLIC_DIR = os.path.abspath(".")
+IMG_DIR = os.path.abspath("../img")
+
+STYLE = '''
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+}
+
+tr:nth-child(odd) {
+  background-color: #e8e8e8;
+}
+</style>
+'''
 
 class CustomHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, directory=None, **kwargs):
         self._root = os.path.abspath(directory)
         super().__init__(*args, directory=self._root, **kwargs)
+
+    def translate_path(self, path):
+        path = unquote(path)
+        if path.startswith("/img/"):
+            return os.path.join(IMG_DIR, path.removeprefix("/img/"))
+        else:
+            return os.path.join(PUBLIC_DIR, path.lstrip("/"))
 
     def list_directory(self, path):
         try:
@@ -21,9 +49,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
         displaypath = urllib.parse.unquote(self.path)
         response = []
 
-        response.append(f"<html><title>Index of {html.escape(displaypath)}</title>")
-        response.append(f"<body><h2>Index of {html.escape(displaypath)}</h2><hr><pre>")
+        response.append(f"<html><head><title>Index of {html.escape(displaypath)}</title>" + STYLE + "</head>")
+        response.append(f'<body><div style="display: flex"><img src="/img/appicon.png" width="7%" style="padding-right: 2%"/>')
+        response.append(f"<h2>Index of {html.escape(displaypath)}</h2></div><hr><pre>")
 
+        response.append(f"<table>")
         for name in files:
             fullname = os.path.join(path, name)
             display_name = name + "/" if os.path.isdir(fullname) else name
@@ -36,10 +66,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 size = "?"
                 created = "?"
 
+            response.append(f"<tr><td>")
             response.append(
-                f'<a href="{link_name}">{html.escape(display_name):50}</a> {size:10} bytes  {created}'
+                f'<a href="{link_name}" style="padding-right: 25rem;">{html.escape(display_name):50}</a> {size:10} bytes  {created}'
             )
+            response.append(f"</td></tr>")
 
+
+        response.append(f"</table>")
         response.append("</pre><hr></body></html>")
         encoded = "\n".join(response).encode('utf-8')
 

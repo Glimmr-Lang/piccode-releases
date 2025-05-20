@@ -5,7 +5,7 @@ RUN pacman -Syu --noconfirm \
 
 # Clone the repository and set the working directory
 RUN cd / && \
-		git clone git@github.com:Glimmr-Lang/piccode-releases.git
+		git clone https://github.com/Glimmr-Lang/piccode-releases.git
 
 # Set the working directory
 WORKDIR /piccode-releases/public

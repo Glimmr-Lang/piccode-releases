@@ -1,13 +1,19 @@
-FROM python:3.11-slim
+FROM archlinux:latest
 
-WORKDIR /app
+RUN pacman -Syu --noconfirm \
+    && pacman -S --noconfirm python git vim
 
-COPY server.py .
-COPY public/ ./public/
+# Clone the repository and set the working directory
+RUN cd / && \
+    git clone https://github.com/Glimmr-Lang/piccode-releases.git && \
+    cd piccode-releases/public/ 
 
-WORKDIR /app/public
+# Set the working directory
+WORKDIR /piccode-releases/public
 
+# Expose port 8080
 EXPOSE 8080
 
-CMD ["python", "../server.py"]
+CMD ["python3", "../server.py", "."]
+
 

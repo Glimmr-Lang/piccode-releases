@@ -4,7 +4,7 @@
 #
 
 app = 'picasso-releases'
-primary_region = 'jnb'
+primary_region = 'iad'
 
 [build]
 
